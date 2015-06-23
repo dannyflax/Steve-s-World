@@ -38,11 +38,11 @@ public class Shader_Manager {
 		int v = gl.glCreateShader(GL2.GL_VERTEX_SHADER);
 		int f = gl.glCreateShader(GL2.GL_FRAGMENT_SHADER);
 		System.out.println(name);
-		String vsrc = readFromStream(JOGL2Nehe10World3D.class .getResourceAsStream(name.concat(".vert")));
+		String vsrc = readFromStream(SteveWorld.class .getResourceAsStream(name.concat(".vert")));
 		gl.glShaderSource(v, 1, new String[] { vsrc }, (int[]) null, 0);
 		gl.glCompileShader(v);
 
-		String fsrc = readFromStream(JOGL2Nehe10World3D.class.getResourceAsStream(name.concat(".frag")));
+		String fsrc = readFromStream(SteveWorld.class.getResourceAsStream(name.concat(".frag")));
 		gl.glShaderSource(f, 1, new String[] { fsrc }, (int[]) null, 0);
 		
 		gl.glCompileShader(f);

@@ -22,5 +22,6 @@
 	<classpathentry kind="lib" path="/JOGL/jogamp-all-platforms/jar/jogl-all-noawt.jar"/>
 	<classpathentry kind="lib" path="/JOGL/jogamp-all-platforms/jar/jogl-all.jar"/>
 	<classpathentry kind="lib" path="/JOGL/jogamp-all-platforms/jar/jogl-test.jar"/>
+	<classpathentry kind="lib" path="/JOGL_Utils/jar/JOGL_Utils.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
