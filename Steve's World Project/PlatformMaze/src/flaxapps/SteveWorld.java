@@ -5,23 +5,18 @@ import static java.awt.event.KeyEvent.VK_B;
 import static java.awt.event.KeyEvent.VK_C;
 import static java.awt.event.KeyEvent.VK_CONTROL;
 import static java.awt.event.KeyEvent.VK_D;
-import static java.awt.event.KeyEvent.VK_DOWN;
 import static java.awt.event.KeyEvent.VK_E;
 import static java.awt.event.KeyEvent.VK_ESCAPE;
 import static java.awt.event.KeyEvent.VK_F;
 import static java.awt.event.KeyEvent.VK_F1;
 import static java.awt.event.KeyEvent.VK_G;
-import static java.awt.event.KeyEvent.VK_LEFT;
 import static java.awt.event.KeyEvent.VK_P;
 import static java.awt.event.KeyEvent.VK_Q;
 import static java.awt.event.KeyEvent.VK_R;
-import static java.awt.event.KeyEvent.VK_RIGHT;
 import static java.awt.event.KeyEvent.VK_S;
 import static java.awt.event.KeyEvent.VK_SHIFT;
 import static java.awt.event.KeyEvent.VK_SPACE;
 import static java.awt.event.KeyEvent.VK_T;
-import static java.awt.event.KeyEvent.VK_U;
-import static java.awt.event.KeyEvent.VK_UP;
 import static java.awt.event.KeyEvent.VK_V;
 import static java.awt.event.KeyEvent.VK_W;
 import static java.awt.event.KeyEvent.VK_X;
@@ -65,6 +60,9 @@ import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferByte;
 import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -75,16 +73,12 @@ import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
 import javax.media.opengl.GLAutoDrawable;
 import javax.media.opengl.GLEventListener;
-import javax.media.opengl.GLException;
-import javax.media.opengl.GLProfile;
 import javax.media.opengl.awt.GLCanvas;
 import javax.media.opengl.glu.GLU;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import com.jogamp.opengl.util.FPSAnimator;
-import com.jogamp.opengl.util.texture.Texture;
-import com.jogamp.opengl.util.texture.awt.AWTTextureIO;
 
 import flaxapps.jogl_util.AnimationHolder;
 import flaxapps.jogl_util.ModelControl;
@@ -216,9 +210,6 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 	// private float walkBias = 0;
 	// private float walkBiasAngle = 0;
 
-	private Texture[] textures = new Texture[3];
-	//private int currTextureFilter = 0; // Which Filter To Use
-	private String textureFilename = "/images/wall.jpg";
 	static GLCanvas canvas;
 
 	AnimationHolder steveIntoWalking;
@@ -319,103 +310,38 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 
 		// Read the world
 		try {
-			shader1 = sm.init("platform", gl);
+			shader1 = sm.init("resources/platform", gl);
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
 
 		try {
-			shader2 = sm.init("steve", gl);
+			shader2 = sm.init("resources/steve", gl);
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
 		
 		try {
-			shader3 = sm.init("platform_godmode", gl);
+			shader3 = sm.init("resources/platform_godmode", gl);
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
 
-		// Load the texture image
-		try {
-			// Use URL so that can read from JAR and disk file.
-			BufferedImage image = ImageIO.read(this.getClass().getResource(
-					textureFilename));
-
-			// Create a OpenGL Texture object
-			textures[0] = AWTTextureIO.newTexture(GLProfile.getDefault(),
-					image, false);
-			// Nearest filter is least compute-intensive
-			// Use nearer filter if image is larger than the original texture
-			gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER,
-					GL.GL_NEAREST);
-			// Use nearer filter if image is smaller than the original texture
-			gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER,GL.GL_NEAREST);
-
-			// For texture coordinates more than 1, set to wrap mode to
-			// GL_REPEAT for
-			// both S and T axes (default setting is GL_CLAMP)
-			gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S,
-					GL.GL_REPEAT);
-			gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T,
-					GL.GL_REPEAT);
-
-		} catch (GLException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		// glimage img = new glimage("/images/mud.png");
-
+		
 		// Blending control
 		gl.glColor4f(1.0f, 1.0f, 1.0f, 0.5f); // Brightness with alpha
-		// Blending function For translucency based On source alpha value
-		//gl.glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-
+		
 		Prism p1 = new Prism();
 		p1.bounds = new Vertex(50.0f,1.0f,50.0f);
 		p1.center = new Vertex(0,-3.0f,0);
 		stage_prisms.add(p1);
 		
 		
-		/*
-		this.drawPlatform(gl, new Vertex(0,-3.0f,0), new Vertex(50.0f,1.0f,50.0f));
+		steveIntoWalking = new AnimationHolder("resources/stevemodels/Steve", 0, 10, 4);
+		steveWalking = new AnimationHolder("resources/stevemodels/Steve", 10, 40, 4);
+		
 
-		this.drawPlatform(gl, new Vertex(0,.9f,45.0f), new Vertex(15.0f,1.0f,15.0f));
-
-		this.drawPlatform(gl, new Vertex(0,25f,45.0f), new Vertex(15.0f,1.0f,15.0f));
-
-		this.drawPlatform(gl, new Vertex(0,36f,30.0f), new Vertex(15.0f,1.0f,15.0f));
-		
-		this.drawPlatform(gl, new Vertex(0,13f,70.0f), new Vertex(150.0f,1.0f,15.0f));
-
-		this.drawPlatform(gl, new Vertex(30f,25f,85f), new Vertex(15.0f,1.0f,15.0f));
-		
-		*/
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		steveIntoWalking = new AnimationHolder("/flaxapps/stevemodels/Steve", 0, 10, 4);
-		steveWalking = new AnimationHolder("/flaxapps/stevemodels/Steve", 10, 40, 4);
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		AnimationHolder vase = new AnimationHolder("/flaxapps/stevemodels/Steve", 1, 20, 1);
+		AnimationHolder vase = new AnimationHolder("resources/stevemodels/Steve", 1, 20, 1);
 
 		mydude = new Monster(vase, new Vertex(0.0f, 0.0f, -200.0f));
 		mydude.stop();
@@ -429,15 +355,15 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 
 		
 		try {
-			w2.loadModelData("walls2.obj");
-			floor.loadModelData("cplatform.obj");
-			top.loadModelData("top.obj");
+			w2.loadModelData("resources/walls2.obj");
+			floor.loadModelData("resources/cplatform.obj");
+			top.loadModelData("resources/top.obj");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		
 		
-		this.setUp2DText(gl, "/images/wall.jpg");
+		this.setUp2DText(gl, "resources/images/wall.jpg");
 
 		// Set up the lighting for Light-1
 		// Ambient light does not come from a particular direction. Need some
@@ -1563,11 +1489,14 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 		BufferedImage bufferedImage = null;
 		int w = 0;
 		int h = 0;
+		
 		try {
-			bufferedImage = ImageIO.read(SteveWorld.class
-					.getResource(txt));
+			FileInputStream fStream = new FileInputStream(new File(txt));
+			bufferedImage = ImageIO.read(fStream);
 			w = bufferedImage.getWidth();
 			h = bufferedImage.getHeight();
+		} catch (FileNotFoundException  e2) {
+			e2.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -1780,42 +1709,10 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 			break;
 		case VK_ESCAPE:
 			frame.dispose();
-			System.exit(0);
-			
+			System.exit(0);		
+			break;
 
-			
-			break;
-		case VK_LEFT: // player turns left (scene rotates right)
-			pos.x-=0.2;
-			break;
-		case VK_RIGHT: // player turns right (scene rotates left)
-			pos.x+=0.2;
-			break;
-		case VK_UP:
-			//steveAngle+=Math.PI/8;
-			break;
-		case VK_DOWN:
-			//steveAngle-=Math.PI/8;
-			break;
-		/*
-		case KeyEvent.VK_PAGE_UP:
-			
-			// player looks up, scene rotates in negative x-axis
-			if (lookUpAngle >= lookUpMax)
-				lookUpAngle -= lookUpIncrement;
-			break;
-		case KeyEvent.VK_PAGE_DOWN:
-			// player looks down, scene rotates in positive x-axis
-			if (lookUpAngle <= lookUpMin)
-				lookUpAngle += lookUpIncrement;
-			break;
-		*/
-		case VK_T: 
-			
-			break;
-		case VK_U: 
-			
-			break;
+
 		
 		/*//Uncomment to enable camera panning
 		case VK_W: // toggle blending mode
@@ -1840,17 +1737,11 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 			break;
 		case VK_F:
 			cOffset[0] += 0.1;
-			break;
-
-		
-		
+			break;	
 		case VK_V:
 			pos.z += 0.1;
 			break;
-		
-		
-		
-		
+	
 		}
 	}
 
