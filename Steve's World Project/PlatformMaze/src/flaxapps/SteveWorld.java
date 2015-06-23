@@ -86,6 +86,11 @@ import com.jogamp.opengl.util.FPSAnimator;
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.awt.AWTTextureIO;
 
+import flaxapps.jogl_util.AnimationHolder;
+import flaxapps.jogl_util.ModelControl;
+import flaxapps.jogl_util.Shader_Manager;
+import flaxapps.jogl_util.Vertex;
+
 
 class indexedPoint{
 	double x, y, z;
@@ -139,7 +144,7 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 	
 	ArrayList<Prism> stage_prisms = new ArrayList<Prism>();
 
-	ArrayList<flaxapps.Vertex> collisionVerts = new ArrayList<flaxapps.Vertex>();
+	ArrayList<Vertex> collisionVerts = new ArrayList<Vertex>();
 
 	Monster mydude;
 	public boolean controlled = true;
@@ -160,14 +165,13 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 	Prism godPrism = new Prism();
 	
 	
-	flaxapps.Vertex snapPoint = new flaxapps.Vertex(0,-3,0);
+	Vertex snapPoint = new Vertex(0,-3,0);
 	
 	private GLU glu; // for the GL Utility
 	int t;
 	// The world
 	Point c_mpos;
 	Point p_mpos;
-	Sector sector;
 	int cmap_id;
 
 	public float lookUpMax = (float) -45.0;
@@ -194,7 +198,7 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 	
 	// Camera position!
 	// Important, establishes the initial position and angle
-	flaxapps.Vertex initPos = new flaxapps.Vertex(0, 50, 5);
+	Vertex initPos = new Vertex(0, 50, 5);
 	public float posX = initPos.x;
 	public float posZ = initPos.y;
 	public float posY = initPos.z;
@@ -204,7 +208,7 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 	
 	cameraStats clickState = new cameraStats();
 	
-	private flaxapps.Vertex pos = new flaxapps.Vertex(0, 0, 0);
+	private Vertex pos = new Vertex(0, 0, 0);
 	private float moveIncrement = 1.0f;
 	// private float turnIncrement = 1.5f; // each turn in degree
 	//private float lookUpIncrement = 1.0f;
@@ -296,7 +300,7 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 	@Override
 	public void init(GLAutoDrawable drawable) {
 
-		godPrism.bounds = new flaxapps.Vertex(20.0f, 1.0f, 20.0f);
+		godPrism.bounds = new Vertex(20.0f, 1.0f, 20.0f);
 		pos.x = 0.0f;
 		pos.y = 0.0f;
 		pos.z = 0.0f;
@@ -370,23 +374,23 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 		//gl.glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
 		Prism p1 = new Prism();
-		p1.bounds = new flaxapps.Vertex(50.0f,1.0f,50.0f);
-		p1.center = new flaxapps.Vertex(0,-3.0f,0);
+		p1.bounds = new Vertex(50.0f,1.0f,50.0f);
+		p1.center = new Vertex(0,-3.0f,0);
 		stage_prisms.add(p1);
 		
 		
 		/*
-		this.drawPlatform(gl, new flaxapps.Vertex(0,-3.0f,0), new flaxapps.Vertex(50.0f,1.0f,50.0f));
+		this.drawPlatform(gl, new Vertex(0,-3.0f,0), new Vertex(50.0f,1.0f,50.0f));
 
-		this.drawPlatform(gl, new flaxapps.Vertex(0,.9f,45.0f), new flaxapps.Vertex(15.0f,1.0f,15.0f));
+		this.drawPlatform(gl, new Vertex(0,.9f,45.0f), new Vertex(15.0f,1.0f,15.0f));
 
-		this.drawPlatform(gl, new flaxapps.Vertex(0,25f,45.0f), new flaxapps.Vertex(15.0f,1.0f,15.0f));
+		this.drawPlatform(gl, new Vertex(0,25f,45.0f), new Vertex(15.0f,1.0f,15.0f));
 
-		this.drawPlatform(gl, new flaxapps.Vertex(0,36f,30.0f), new flaxapps.Vertex(15.0f,1.0f,15.0f));
+		this.drawPlatform(gl, new Vertex(0,36f,30.0f), new Vertex(15.0f,1.0f,15.0f));
 		
-		this.drawPlatform(gl, new flaxapps.Vertex(0,13f,70.0f), new flaxapps.Vertex(150.0f,1.0f,15.0f));
+		this.drawPlatform(gl, new Vertex(0,13f,70.0f), new Vertex(150.0f,1.0f,15.0f));
 
-		this.drawPlatform(gl, new flaxapps.Vertex(30f,25f,85f), new flaxapps.Vertex(15.0f,1.0f,15.0f));
+		this.drawPlatform(gl, new Vertex(30f,25f,85f), new Vertex(15.0f,1.0f,15.0f));
 		
 		*/
 		
@@ -413,7 +417,7 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 		
 		AnimationHolder vase = new AnimationHolder("/flaxapps/stevemodels/Steve", 1, 20, 1);
 
-		mydude = new Monster(vase, new flaxapps.Vertex(0.0f, 0.0f, -200.0f));
+		mydude = new Monster(vase, new Vertex(0.0f, 0.0f, -200.0f));
 		mydude.stop();
 		mydude.rangle = 0;
 		mydude.speed = 3.0f;
@@ -424,9 +428,14 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 		top = new ModelControl();
 
 		
-		w2.loadModelData("walls2.obj");
-		floor.loadModelData("cplatform.obj");
-		top.loadModelData("top.obj");
+		try {
+			w2.loadModelData("walls2.obj");
+			floor.loadModelData("cplatform.obj");
+			top.loadModelData("top.obj");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
 		
 		this.setUp2DText(gl, "/images/wall.jpg");
 
@@ -513,10 +522,10 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 	 */
 
 	class AABB {
-		flaxapps.Vertex c; // center point
+		Vertex c; // center point
 		float[] r; // halfwidths
 
-		public AABB(float[] ar, flaxapps.Vertex ac) {
+		public AABB(float[] ar, Vertex ac) {
 			c = ac;
 			r = ar;
 		}
@@ -533,7 +542,7 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 		return true;
 	}
 
-	public void draw2doorRoom(flaxapps.Vertex l, double a, GL2 gl) {
+	public void draw2doorRoom(Vertex l, double a, GL2 gl) {
 		
 		gl.glColor3d(1.0, 0.0, 0.0);
 		//collisionVerts.addAll(floor.drawModel(l, gl, 0));
@@ -567,9 +576,9 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 	class Prism2D{
 		
 		
-		flaxapps.Vertex center;
-		flaxapps.Vertex bounds;
-		public boolean containsPoint(flaxapps.Vertex point){
+		Vertex center;
+		Vertex bounds;
+		public boolean containsPoint(Vertex point){
 			
 			
 			//Bounds refers to the total width/height of the circle!
@@ -582,7 +591,7 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 		}
 		
 		
-		boolean setInPrism(ArrayList<flaxapps.Vertex> s, Prism2D p){
+		boolean setInPrism(ArrayList<Vertex> s, Prism2D p){
 			for(int i = 0; i<s.size(); i++){
 				if(p.containsPoint(s.get(i)))
 					return true;
@@ -591,7 +600,7 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 		}
 		
 		
-		boolean setInPrisms(ArrayList<flaxapps.Vertex> s, Prism2D p, Prism2D q){
+		boolean setInPrisms(ArrayList<Vertex> s, Prism2D p, Prism2D q){
 			for(int i = 0; i<s.size(); i++){
 				if(p.containsPoint(s.get(i)) && q.containsPoint(s.get(i)))
 					return true;
@@ -600,14 +609,14 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 		}
 		
 		
-		public ArrayList<flaxapps.Vertex> getCorners(){
+		public ArrayList<Vertex> getCorners(){
 			
-			ArrayList<flaxapps.Vertex> set = new ArrayList<flaxapps.Vertex>();
+			ArrayList<Vertex> set = new ArrayList<Vertex>();
 			
-			set.add(new flaxapps.Vertex(center.x + bounds.x/2, center.y + bounds.y/2, 0));
-			set.add(new flaxapps.Vertex(center.x + bounds.x/2, center.y - bounds.y/2, 0));
-			set.add(new flaxapps.Vertex(center.x - bounds.x/2, center.y + bounds.y/2, 0));
-			set.add(new flaxapps.Vertex(center.x - bounds.x/2, center.y - bounds.y/2, 0));
+			set.add(new Vertex(center.x + bounds.x/2, center.y + bounds.y/2, 0));
+			set.add(new Vertex(center.x + bounds.x/2, center.y - bounds.y/2, 0));
+			set.add(new Vertex(center.x - bounds.x/2, center.y + bounds.y/2, 0));
+			set.add(new Vertex(center.x - bounds.x/2, center.y - bounds.y/2, 0));
 			
 			return set;
 		}
@@ -622,14 +631,14 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 			if(setInPrism(p.getCorners(),this))
 				return true;
 			
-			ArrayList<flaxapps.Vertex> set = new ArrayList<flaxapps.Vertex>();
+			ArrayList<Vertex> set = new ArrayList<Vertex>();
 			
-			flaxapps.Vertex dif = new flaxapps.Vertex(center.x - p.center.x, center.y - p.center.y, 0);
+			Vertex dif = new Vertex(center.x - p.center.x, center.y - p.center.y, 0);
 			
-			set.add(new flaxapps.Vertex(p.center.x + dif.x, p.center.y + dif.y, 0));
-			set.add(new flaxapps.Vertex(p.center.x + 0	  , p.center.y + dif.y, 0));
-			set.add(new flaxapps.Vertex(p.center.x + dif.x, p.center.y + 0	  , 0));
-			set.add(new flaxapps.Vertex(p.center.x + 0	  , p.center.y + 0	  , 0));
+			set.add(new Vertex(p.center.x + dif.x, p.center.y + dif.y, 0));
+			set.add(new Vertex(p.center.x + 0	  , p.center.y + dif.y, 0));
+			set.add(new Vertex(p.center.x + dif.x, p.center.y + 0	  , 0));
+			set.add(new Vertex(p.center.x + 0	  , p.center.y + 0	  , 0));
 			
 			if(setInPrisms(set,p,this))
 				return true;
@@ -642,12 +651,12 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 	}
 	
 	class Prism{
-		flaxapps.Vertex center;
-		flaxapps.Vertex bounds;
+		Vertex center;
+		Vertex bounds;
 		
 		public Prism(){
-			center = new flaxapps.Vertex(0, 0, 0);
-			bounds = new flaxapps.Vertex(0, 0, 0);
+			center = new Vertex(0, 0, 0);
+			bounds = new Vertex(0, 0, 0);
 		}
 		
 		
@@ -657,32 +666,32 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 			
 			int count = 0;
 			Prism2D x1 = new Prism2D();
-			x1.center = new flaxapps.Vertex(center.y, center.z, 0);
-			x1.bounds = new flaxapps.Vertex(bounds.y, bounds.z, 0);
+			x1.center = new Vertex(center.y, center.z, 0);
+			x1.bounds = new Vertex(bounds.y, bounds.z, 0);
 			Prism2D x2 = new Prism2D();
-			x2.center = new flaxapps.Vertex(p.center.y, p.center.z, 0);
-			x2.bounds = new flaxapps.Vertex(p.bounds.y, p.bounds.z, 0);
+			x2.center = new Vertex(p.center.y, p.center.z, 0);
+			x2.bounds = new Vertex(p.bounds.y, p.bounds.z, 0);
 			if(x1.hitsPrism(x2)){
 				count++;
 			}
 			
 			Prism2D y1 = new Prism2D();
-			y1.center = new flaxapps.Vertex(center.x, center.z, 0);
-			y1.bounds = new flaxapps.Vertex(bounds.x, bounds.z, 0);
+			y1.center = new Vertex(center.x, center.z, 0);
+			y1.bounds = new Vertex(bounds.x, bounds.z, 0);
 			Prism2D y2 = new Prism2D();
-			y2.center = new flaxapps.Vertex(p.center.x, p.center.z, 0);
-			y2.bounds = new flaxapps.Vertex(p.bounds.x, p.bounds.z, 0);
+			y2.center = new Vertex(p.center.x, p.center.z, 0);
+			y2.bounds = new Vertex(p.bounds.x, p.bounds.z, 0);
 			if(y1.hitsPrism(y2))
 			{
 				count++;
 			}
 			
 			Prism2D z1 = new Prism2D();
-			z1.center = new flaxapps.Vertex(center.x, center.y, 0);
-			z1.bounds = new flaxapps.Vertex(bounds.x, bounds.y, 0);
+			z1.center = new Vertex(center.x, center.y, 0);
+			z1.bounds = new Vertex(bounds.x, bounds.y, 0);
 			Prism2D z2 = new Prism2D();
-			z2.center = new flaxapps.Vertex(p.center.x, p.center.y, 0);
-			z2.bounds = new flaxapps.Vertex(p.bounds.x, p.bounds.y, 0);
+			z2.center = new Vertex(p.center.x, p.center.y, 0);
+			z2.bounds = new Vertex(p.bounds.x, p.bounds.y, 0);
 			if(z1.hitsPrism(z2))
 			{
 				count++;
@@ -735,18 +744,18 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 		
 	}
 	
-	public boolean hitsWall(flaxapps.Vertex pis) {
+	public boolean hitsWall(Vertex pis) {
 
 		
 		
 		Prism steveBox = new Prism();
-		steveBox.center = new flaxapps.Vertex(pis.x,pis.y,pis.z);
+		steveBox.center = new Vertex(pis.x,pis.y,pis.z);
 		double h = 8.4;
 		steveBox.center.y += h/2f;
 		double x = 3.5, z = 3.5;
 		//double x = Math.abs(s*Math.cos(steveAngle)) + Math.abs(s*Math.sin(steveAngle));
 		//double z = Math.abs(s*Math.sin(steveAngle)) + Math.abs(s*Math.cos(steveAngle));
-		steveBox.bounds = new flaxapps.Vertex((float)x, (float)h, (float)z);
+		steveBox.bounds = new Vertex((float)x, (float)h, (float)z);
 		
 		//System.out.println("Testing " + cprisms.size() + " prisms:");
 		
@@ -785,7 +794,7 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 						headingY+=10.0;
 						float tz = (float) (ds*Math.cos(Math.toRadians(headingY))) + pos.z;
 						float tx = (float) (ds*Math.sin(Math.toRadians(headingY))) + pos.x;
-						//if(!this.hitsWall(new flaxapps.Vertex(tx, 10, tz), hls)){
+						//if(!this.hitsWall(new Vertex(tx, 10, tz), hls)){
 							posZ = tz;
 							posX = tx;
 						/*}
@@ -801,7 +810,7 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 						float tz1 = (float) (dis*Math.cos(Math.toRadians(headingY))) + pos.z;
 						float tx1 = (float) (dis*Math.sin(Math.toRadians(headingY))) + pos.x;
 						
-						//if(!this.hitsWall(new flaxapps.Vertex(tx1, 10, tz1), hls)){
+						//if(!this.hitsWall(new Vertex(tx1, 10, tz1), hls)){
 							posZ = tz1;
 							posX = tx1;
 						/*}
@@ -849,7 +858,7 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 				
 			}
 			
-			if(this.hitsWall(new flaxapps.Vertex(pos.x,pos.y,pos.z))){
+			if(this.hitsWall(new Vertex(pos.x,pos.y,pos.z))){
 				//System.out.println("o.");
 				steveAngle = oldAngle;
 				moving = false;
@@ -989,7 +998,7 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 					
 					
 					
-					snapPoint = new flaxapps.Vertex(this.clickState.snapPoint.x + dx,this.clickState.snapPoint.y + dy,this.clickState.snapPoint.z + dz);
+					snapPoint = new Vertex(this.clickState.snapPoint.x + dx,this.clickState.snapPoint.y + dy,this.clickState.snapPoint.z + dz);
 					posX= this.clickState.pos.x + dx;
 					posY= this.clickState.pos.y + dy;
 					posZ= this.clickState.pos.z + dz;
@@ -1000,98 +1009,18 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 				else if(this.pressedKeys.contains(VK_P)){
 					if(this.canPlaceGP){
 						Prism addPrism = new Prism();
-						addPrism.bounds = new flaxapps.Vertex(godPrism.bounds.x, godPrism.bounds.y, godPrism.bounds.z);
-						addPrism.center = new flaxapps.Vertex(godPrism.center.x, godPrism.center.y, godPrism.center.z);
+						addPrism.bounds = new Vertex(godPrism.bounds.x, godPrism.bounds.y, godPrism.bounds.z);
+						addPrism.center = new Vertex(godPrism.center.x, godPrism.center.y, godPrism.center.z);
 						stage_prisms.add(addPrism);
 					}
 					
 				}
-				
-				
-				
-				/*
-				
-				//A failed attempt at gyroscopic rotation :(
-				//But that's okay, because it isn't really necessary...
-				 
-				Point current = MouseInfo.getPointerInfo().getLocation();
-				
-				
-				
-				int x = current.x - firstClick.x - 8;
-				float y = ((current.y - this.frame.getLocation().y) - firstClick.y - 30);
-				
-				//System.out.println(y);
-				//System.out.println("Cur " + (current.y - this.frame.getLocation().y) + " fc " + firstClick.y + "\n");
-				
 								
-				
-				yrad = this.clickState.dis;
-				
-				
-				float cshy = clickState.hy;
-				
-				double xrad = Math.abs(yrad * Math.sin(Math.toRadians(cshy)));    //If headingY = 0 or pi, x changes by 0
-				double zrad = Math.abs(yrad * Math.cos(Math.toRadians(cshy)));	//If headingY = pi/2 or 3pi/2, z changes by 0
-				
-				
-				//Equation for ellipse:
-				//((x - snapPoint.x)/(xrad/2))^2 + ((y - snapPoint.y)/(yrad/2))^2 = 1
-				//(x - snapPoint.x)/(xrad/2) = Math.sqrt(1 - ((y - (snapPoint.y)/(yrad/2))^2))
-				int neg = 1;
-				zrangle = 0;
-				
-				
-				
-				y = (y + lastY);
-				y = y%360;
-				saveY = y;
-				
-				
-				if(y>90 && y<270){
-					neg = -1;
-					zrangle = 180;
-				}
-				
-				if(y<-90 && y>-270){
-					neg = -1;
-					zrangle = 180;
-				}
-				
-				
-				
-				y = (float)(yrad*Math.sin(Math.toRadians(y))) + snapPoint.y;
-				
-				
-				if(y>360){
-					//System.out.println("DIE COMMIE DIE");
-					mouseHeld = false;
-					
-				}
-				if(y<-360){
-					//System.out.println("DIE COMMIE DIE");
-					mouseHeld = false;
-					
-				}else{
-					
-				float dx = (float) ((neg*xrad) * Math.sqrt(1 - Math.pow(((y - snapPoint.y)/(yrad)),2))) + snapPoint.x;
-				float dz = (float) ((neg*zrad) * Math.sqrt(1 - Math.pow(((y - snapPoint.y)/(yrad)),2))) + snapPoint.z;
-				//System.out.println(dx + " " + y + " " +  dz + "\n\n");
-				posY = y;
-				posX = dx;
-				posZ = dz;
-				
-				
-				}
-				
-				*/
-								
-				
 			}
 			
 			
 			makeCameraFacePoint(snapPoint);
-			godPrism.center = new flaxapps.Vertex(snapPoint.x,snapPoint.y,snapPoint.z);
+			godPrism.center = new Vertex(snapPoint.x,snapPoint.y,snapPoint.z);
 			
 		}
 		
@@ -1099,8 +1028,6 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 	
 	public String askUserForInput(String infoMessage)
     {
-       // JOptionPane.showMessageDialog(null, infoMessage, "InfoBox: " + location, JOptionPane.INFORMATION_MESSAGE);
-       
 		return JOptionPane.showInputDialog(infoMessage);
     }
 	
@@ -1108,7 +1035,7 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 	
 	
 	
-	private void makeCameraFacePoint(flaxapps.Vertex point){
+	private void makeCameraFacePoint(Vertex point){
 		
 		double dz = posZ - point.z;
 		double dx = posX - point.x;
@@ -1154,9 +1081,9 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 		
 	}
 	
-	public flaxapps.Vertex rotatePointAroundOrigin(flaxapps.Vertex p, double angle){
+	public Vertex rotatePointAroundOrigin(Vertex p, double angle){
 		//ANGLE IN RADIANS!!!!!!!
-		flaxapps.Vertex np = new flaxapps.Vertex(0, 0, 0);
+		Vertex np = new Vertex(0, 0, 0);
 		np.x = (float) (p.x*Math.cos(angle) - p.y*Math.sin(angle));
 		np.y = (float) (p.x*Math.sin(angle) + p.y*Math.cos(angle));
 		return np;
@@ -1208,7 +1135,7 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 	    downV+=graviT;
 	    
 	    if(pos.y<=-30){
-	    	pos = new flaxapps.Vertex(0, 0, 0);
+	    	pos = new Vertex(0, 0, 0);
 	    	posX = initPos.x;
 	    	posZ = initPos.y;
 	    	posY = initPos.z;
@@ -1223,7 +1150,7 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 		
 		
 		
-		if(this.hitsWall(new flaxapps.Vertex(pos.x,pos.y,pos.z))){
+		if(this.hitsWall(new Vertex(pos.x,pos.y,pos.z))){
 			pos.y-=downV;
 			posY-=downV;
 			
@@ -1236,7 +1163,7 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 				posY+=downV;
 				
 				
-				if(this.hitsWall(new flaxapps.Vertex(pos.x,pos.y,pos.z))){
+				if(this.hitsWall(new Vertex(pos.x,pos.y,pos.z))){
 					pos.y-=downV;
 					posY-=downV;
 				}
@@ -1253,7 +1180,7 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 				posY+=downV;
 				
 				
-				if(this.hitsWall(new flaxapps.Vertex(pos.x,pos.y,pos.z))){
+				if(this.hitsWall(new Vertex(pos.x,pos.y,pos.z))){
 					pos.y-=downV;
 					posY-=downV;
 				}
@@ -1282,7 +1209,7 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 			posX -= (float) Math.sin(Math.toRadians(headingY)) * moveIncrement;
 			posZ -= (float) Math.cos(Math.toRadians(headingY)) * moveIncrement;
 
-			if (this.hitsWall(new flaxapps.Vertex(posX, posY + 10.0f, posZ))) {
+			if (this.hitsWall(new Vertex(posX, posY + 10.0f, posZ))) {
 				posX += (float) Math.sin(Math.toRadians(headingY))
 						* moveIncrement;
 				posZ += (float) Math.cos(Math.toRadians(headingY))
@@ -1295,7 +1222,7 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 			posX += (float) Math.sin(Math.toRadians(headingY)) * moveIncrement;
 			posZ += (float) Math.cos(Math.toRadians(headingY)) * moveIncrement;
 
-			if (this.hitsWall(new flaxapps.Vertex(posX, posY + 10.0f, posZ))) {
+			if (this.hitsWall(new Vertex(posX, posY + 10.0f, posZ))) {
 				posX -= (float) Math.sin(Math.toRadians(headingY))
 						* moveIncrement;
 				posZ -= (float) Math.cos(Math.toRadians(headingY))
@@ -1308,7 +1235,7 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 					* moveIncrement;
 			posZ -= (float) Math.cos(Math.toRadians(headingY + 90.0))
 					* moveIncrement;
-			if (this.hitsWall(new flaxapps.Vertex(posX, posY + 10.0f, posZ))) {
+			if (this.hitsWall(new Vertex(posX, posY + 10.0f, posZ))) {
 				posX += (float) Math.sin(Math.toRadians(headingY + 90.0))
 						* moveIncrement;
 				posZ += (float) Math.cos(Math.toRadians(headingY + 90.0))
@@ -1322,7 +1249,7 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 			posZ -= (float) Math.cos(Math.toRadians(headingY - 90.0))
 					* moveIncrement;
 
-			if (this.hitsWall(new flaxapps.Vertex(posX, posY + 10.0f, posZ))) {
+			if (this.hitsWall(new Vertex(posX, posY + 10.0f, posZ))) {
 				posX += (float) Math.sin(Math.toRadians(headingY - 90.0))
 						* moveIncrement;
 				posZ += (float) Math.cos(Math.toRadians(headingY - 90.0))
@@ -1410,7 +1337,7 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 			//Apply a rotation matrix to account for rotated axes
 			//when camera is rotated
 			double rhy = Math.toRadians(headingY);
-			flaxapps.Vertex rps = this.rotatePointAroundOrigin(new flaxapps.Vertex((float)dx,(float)dz,0), -rhy);
+			Vertex rps = this.rotatePointAroundOrigin(new Vertex((float)dx,(float)dz,0), -rhy);
 			double rdx = rps.x;
 			double rdz = rps.y;
 			
@@ -1419,7 +1346,7 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 			pos.z+=dz;
 			posX+=dx;
 			posZ+=dz;
-			if(this.hitsWall(new flaxapps.Vertex(pos.x,pos.y,pos.z))){
+			if(this.hitsWall(new Vertex(pos.x,pos.y,pos.z))){
 				System.out.println("Ouch..");
 				pos.x-=dx;
 				pos.z-=dz;
@@ -1457,7 +1384,7 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 			
 			
 			
-			if(this.hitsWall(new flaxapps.Vertex(posX,10,posZ))){
+			if(this.hitsWall(new Vertex(posX,10,posZ))){
 				//posX-=dx;
 				//posZ-=dz;
 				
@@ -1479,7 +1406,7 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 			
 			
 			
-			if(this.hitsWall(new flaxapps.Vertex(posX,10,posZ))){
+			if(this.hitsWall(new Vertex(posX,10,posZ))){
 				
 				
 			}
@@ -1497,19 +1424,19 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 			//Draw steve standing still - Make sure he's at frame 0
 			steveIntoWalking.currentFrame = 0;
 			steveWalking.currentFrame = 0;
-			steveIntoWalking.drawStillFrame(new flaxapps.Vertex(pos.x,pos.y,pos.z), gl, steveAngle);
+			steveIntoWalking.drawStillFrame(new Vertex(pos.x,pos.y,pos.z), gl, steveAngle);
 		}
 		else{
 			
 			//Little walking preparation animation
 			//When this animation ends, draw him actually walking
 			if(steveIntoWalking.currentFrame< steveIntoWalking.maxFrame - 1){
-				steveIntoWalking.drawFrame(new flaxapps.Vertex(pos.x,pos.y,pos.z), gl, steveAngle);
+				steveIntoWalking.drawFrame(new Vertex(pos.x,pos.y,pos.z), gl, steveAngle);
 				
 			}
 			else{
 				
-				steveWalking.drawFrame(new flaxapps.Vertex(pos.x,pos.y,pos.z), gl, steveAngle);
+				steveWalking.drawFrame(new Vertex(pos.x,pos.y,pos.z), gl, steveAngle);
 				
 			}
 		}
@@ -1585,17 +1512,17 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 		}
 		
 		/*
-		this.drawPlatform(gl, new flaxapps.Vertex(0,-3.0f,0), new flaxapps.Vertex(50.0f,1.0f,50.0f));
+		this.drawPlatform(gl, new Vertex(0,-3.0f,0), new Vertex(50.0f,1.0f,50.0f));
 
-		this.drawPlatform(gl, new flaxapps.Vertex(0,.9f,45.0f), new flaxapps.Vertex(15.0f,1.0f,15.0f));
+		this.drawPlatform(gl, new Vertex(0,.9f,45.0f), new Vertex(15.0f,1.0f,15.0f));
 
-		this.drawPlatform(gl, new flaxapps.Vertex(0,25f,45.0f), new flaxapps.Vertex(15.0f,1.0f,15.0f));
+		this.drawPlatform(gl, new Vertex(0,25f,45.0f), new Vertex(15.0f,1.0f,15.0f));
 
-		this.drawPlatform(gl, new flaxapps.Vertex(0,36f,30.0f), new flaxapps.Vertex(15.0f,1.0f,15.0f));
+		this.drawPlatform(gl, new Vertex(0,36f,30.0f), new Vertex(15.0f,1.0f,15.0f));
 		
-		this.drawPlatform(gl, new flaxapps.Vertex(0,13f,70.0f), new flaxapps.Vertex(150.0f,1.0f,15.0f));
+		this.drawPlatform(gl, new Vertex(0,13f,70.0f), new Vertex(150.0f,1.0f,15.0f));
 
-		this.drawPlatform(gl, new flaxapps.Vertex(30f,25f,85f), new flaxapps.Vertex(15.0f,1.0f,15.0f));
+		this.drawPlatform(gl, new Vertex(30f,25f,85f), new Vertex(15.0f,1.0f,15.0f));
 		*/
 		
 		
@@ -1605,16 +1532,16 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 	    
 	    }
 	
-		public void drawPlatform(GL2 gl, flaxapps.Vertex center, flaxapps.Vertex bounds){
+		public void drawPlatform(GL2 gl, Vertex center, Vertex bounds){
 			Prism p1 = new Prism();
-			p1.center = new flaxapps.Vertex(center.x,center.y,center.z);
-			p1.bounds = new flaxapps.Vertex(bounds.x,bounds.y,bounds.z);
+			p1.center = new Vertex(center.x,center.y,center.z);
+			p1.bounds = new Vertex(bounds.x,bounds.y,bounds.z);
 			// rtrgl.glUniform3f(lightLoc, 0.0f, 1.0f, 0.0f);
 			
 			//gl.glUniform3f(lightLoc, -p1.center.x + posX, -p1.center.y + posY, -p1.center.z + posZ);
 			cprisms.add(p1);
 			
-			floor.drawModel(p1.center, gl, 0, new flaxapps.Vertex(bounds.x/2,bounds.y/2,bounds.z/2));
+			floor.drawModel(p1.center, gl, 0, new Vertex(bounds.x/2,bounds.y/2,bounds.z/2));
 		}
 		
 		public void drawPlatform(GL2 gl, Prism p1){
@@ -1623,7 +1550,7 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 			//gl.glUniform3f(lightLoc, -p1.center.x + posX, -p1.center.y + posY, -p1.center.z + posZ);
 			cprisms.add(p1);
 			
-			floor.drawModel(p1.center, gl, 0, new flaxapps.Vertex(p1.bounds.x/2,p1.bounds.y/2,p1.bounds.z/2));
+			floor.drawModel(p1.center, gl, 0, new Vertex(p1.bounds.x/2,p1.bounds.y/2,p1.bounds.z/2));
 		}
 	
 
@@ -1806,10 +1733,10 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 				//Make camera face Steve
 				this.makeCameraFacePoint(pos);
 				lookUpAngle = 0;
-				snapPoint = new flaxapps.Vertex(0,-3,0);
+				snapPoint = new Vertex(0,-3,0);
 			}
 			else{
-				snapPoint = new flaxapps.Vertex(pos.x,pos.y,pos.z);
+				snapPoint = new Vertex(pos.x,pos.y,pos.z);
 				posX = 0 + snapPoint.x;
 				posZ = zoom + snapPoint.z;
 				posY = 0 + snapPoint.y;
@@ -1992,39 +1919,6 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 
 	}
 
-	// A sector comprises many triangles (inner class)
-	class Sector {
-		Triangle[] triangles;
-
-		// Constructor
-		public Sector(int numTriangles) {
-			triangles = new Triangle[numTriangles];
-			for (int i = 0; i < numTriangles; i++) {
-				triangles[i] = new Triangle();
-			}
-		}
-	}
-
-	// A triangle has 3 vertices (inner class)
-	class Triangle {
-		Vertex[] vertices = new Vertex[3];
-
-		public Triangle() {
-			vertices[0] = new Vertex();
-			vertices[1] = new Vertex();
-			vertices[2] = new Vertex();
-		}
-	}
-
-	// A vertex has xyz (location) and uv (for texture) (inner class)
-	class Vertex {
-		float x, y, z; // 3D x,y,z location
-		float u, v; // 2D texture coordinates
-
-		public String toString() {
-			return "(" + x + "," + y + "," + z + ")" + "(" + u + "," + v + ")";
-		}
-	}
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
@@ -2038,11 +1932,11 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 		this.firstClick = e.getPoint();
 		mouseHeld = true;
 		
-		this.clickState.snapPoint = new flaxapps.Vertex(snapPoint.x,snapPoint.y,snapPoint.z);
+		this.clickState.snapPoint = new Vertex(snapPoint.x,snapPoint.y,snapPoint.z);
 		
 		this.clickState.lua = lookUpAngle;
 		this.clickState.hy  = headingY;
-		this.clickState.pos = new flaxapps.Vertex(posX, posY, posZ);
+		this.clickState.pos = new Vertex(posX, posY, posZ);
 		this.clickState.dis = (float) Math.sqrt(Math.pow(posX - snapPoint.x,2) + Math.pow(posY - snapPoint.y,2) + Math.pow(posZ - snapPoint.z,2));
 		this.clickState.zoom = zoom;
 	}
@@ -2075,8 +1969,8 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 	
 
 	class cameraStats{
-		flaxapps.Vertex pos;
-		flaxapps.Vertex snapPoint;
+		Vertex pos;
+		Vertex snapPoint;
 		float hy;
 		float lua; 
 		float dis;
