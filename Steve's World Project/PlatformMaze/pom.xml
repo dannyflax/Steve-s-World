@@ -31,5 +31,10 @@
   		<artifactId>JOGL</artifactId>
   		<version>0.0.1-SNAPSHOT</version>
   	</dependency>
+  	<dependency>
+  		<groupId>JOGL_Utils</groupId>
+  		<artifactId>JOGL_Utils</artifactId>
+  		<version>0.0.1-SNAPSHOT</version>
+  	</dependency>
   </dependencies>
 </project>
