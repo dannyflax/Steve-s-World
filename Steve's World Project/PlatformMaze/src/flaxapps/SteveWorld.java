@@ -99,6 +99,7 @@ class indexedPoint{
  * 		Move Forward - W
  * 		Move Back - X
  * 		Move Diagonally - Q,E,Z,C
+ * 		Jump - Space
  * 		Rotate Camera - R,T
  * 		Switch back and forth between god mode - G
  * 
