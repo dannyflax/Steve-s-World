@@ -91,8 +91,24 @@ class indexedPoint{
 	int index;
 }
 
-/*
- *Controls:  
+/**
+ * Basic Motion Controls:
+ * 
+ * 		Move Left - A
+ * 		Move Right - D
+ * 		Move Forward - W
+ * 		Move Back - X
+ * 		Move Diagonally - Q,E,Z,C
+ * 		Rotate Camera - R,T
+ * 		Switch back and forth between god mode - G
+ * 
+ * God Mode Controls (profusely complicated):
+ * 
+ * 		Switch view from axis - X,Y,Z (hold ctrl to flip)
+ * 		Move Platform - Shift + Mouse Drag
+ * 		Place Platform - P + Single Click
+ * 		Resize Platform - X, Y, or Z and S (X,Y,Z refers to the axis on which you wish to resize)
+ * 
  */
 
 
@@ -140,7 +156,6 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 
 	ArrayList<Vertex> collisionVerts = new ArrayList<Vertex>();
 
-	Monster mydude;
 	public boolean controlled = true;
 
 	int frm = 0;
@@ -340,14 +355,6 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 		steveIntoWalking = new AnimationHolder("resources/stevemodels/Steve", 0, 10, 4);
 		steveWalking = new AnimationHolder("resources/stevemodels/Steve", 10, 40, 4);
 		
-
-		AnimationHolder vase = new AnimationHolder("resources/stevemodels/Steve", 1, 20, 1);
-
-		mydude = new Monster(vase, new Vertex(0.0f, 0.0f, -200.0f));
-		mydude.stop();
-		mydude.rangle = 0;
-		mydude.speed = 3.0f;
-
 		w2 = new ModelControl();
 		mc2 = new ModelControl();
 		floor = new ModelControl();
@@ -716,33 +723,25 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 					case VK_T:
 						
 						double ds = Math.sqrt(Math.pow(posX - pos.x,2) + Math.pow(posZ - pos.z,2));
-						//dis = 5.0;
 						headingY+=10.0;
 						float tz = (float) (ds*Math.cos(Math.toRadians(headingY))) + pos.z;
 						float tx = (float) (ds*Math.sin(Math.toRadians(headingY))) + pos.x;
-						//if(!this.hitsWall(new Vertex(tx, 10, tz), hls)){
-							posZ = tz;
-							posX = tx;
-						/*}
-						else{
-							headingY-=10.0;
-						}*/
+						posZ = tz;
+						posX = tx;
+						
 						break;
 					case VK_R:
 						
 						double dis = Math.sqrt(Math.pow(posX - pos.x,2) + Math.pow(posZ - pos.z,2));
-						//dis = 5.0;
+
 						headingY-=10.0;
 						float tz1 = (float) (dis*Math.cos(Math.toRadians(headingY))) + pos.z;
 						float tx1 = (float) (dis*Math.sin(Math.toRadians(headingY))) + pos.x;
 						
-						//if(!this.hitsWall(new Vertex(tx1, 10, tz1), hls)){
-							posZ = tz1;
-							posX = tx1;
-						/*}
-						else{
-							headingY+=10.0;
-						}*/
+					
+						posZ = tz1;
+						posX = tx1;
+
 						
 						break;
 					case VK_W:
@@ -785,7 +784,6 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 			}
 			
 			if(this.hitsWall(new Vertex(pos.x,pos.y,pos.z))){
-				//System.out.println("o.");
 				steveAngle = oldAngle;
 				moving = false;
 			}
@@ -803,7 +801,6 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 				
 				if(this.pressedKeys.contains(VK_S)){
 					this.pressedKeys = new ArrayList<Integer>();
-					System.out.println("DOING");
 					String ret = this.askUserForInput("X VALUE");
 					if(ret!=null && Float.valueOf(ret)<this.MAX_SIZE){
 						float size = Float.valueOf(ret);
@@ -826,7 +823,6 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 			if(this.pressedKeys.contains(VK_Y)){
 				if(this.pressedKeys.contains(VK_S)){
 					this.pressedKeys = new ArrayList<Integer>();
-					System.out.println("DOING");
 					String ret = this.askUserForInput("Y VALUE");
 					if(ret!=null && Float.valueOf(ret)<this.MAX_SIZE){
 						float size = Float.valueOf(ret);
@@ -849,7 +845,6 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 			if(this.pressedKeys.contains(VK_Z)){
 				if(this.pressedKeys.contains(VK_S)){
 					this.pressedKeys = new ArrayList<Integer>();
-					System.out.println("DOING");
 					String ret = this.askUserForInput("Z VALUE");
 					if(ret!=null && Float.valueOf(ret)<this.MAX_SIZE){
 						float size = Float.valueOf(ret);
@@ -878,8 +873,7 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 					
 					double dis1 = Math.sqrt(Math.pow(firstClick.x + 8 - SteveWorld.frame.getSize().width/2, 2) + Math.pow(firstClick.y + 30 - SteveWorld.frame.getSize().height/2, 2));
 					double dis2 = Math.sqrt(Math.pow((current.x - SteveWorld.frame.getLocation().x) - SteveWorld.frame.getSize().width/2, 2) + Math.pow((current.y - SteveWorld.frame.getLocation().y) - SteveWorld.frame.getSize().height/2, 2));
-					//System.out.println(firstClick.x - 8 - (current.x - this.frame.getLocation().x - 16));
-					//System.out.println(firstClick.y + 30 - (current.y - this.frame.getLocation().y));
+					
 					zoom = (float) (this.clickState.zoom + (dis1 - dis2)/10);
 					
 					if((Math.abs(this.clickState.zoom)/this.clickState.zoom)==1){
@@ -973,11 +967,7 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 		if(dz<0){
 			headingY+=180;
 		}
-		/*
-		if(dx == 0){
-			headingY = 0;
-		}
-		*/
+
 		if(dz == 0){
 			if(dx>0){
 				headingY = 90;
@@ -1040,11 +1030,7 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 			
 			
 			if(lDateTime - last>1000)
-				first = false;
-	    	
-			
-	    
-			
+				first = false;	
 	    
 		}
 	    
@@ -1053,9 +1039,8 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 	    	
 	    	
 	    		
-	    	// System.out.println("F: " + dlta);
-	    
-	    	 if(!first){
+	    	
+	    if(!first){
 		
 	    float graviT = -0.3f;
 	    downV+=graviT;
@@ -1069,11 +1054,8 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 	    	headingY = 0;
 	    }
 	    
-	    //downV=-.1f;
 		pos.y+=downV;
 		posY+=downV;
-		//posY+=downV;
-		
 		
 		
 		if(this.hitsWall(new Vertex(pos.x,pos.y,pos.z))){
@@ -1115,8 +1097,6 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 					steveOnGround = true;		
 				}
 			}
-			
-			//System.out.println("Loop 2 processed " + i + " times\n");
 			
 			
 		}
@@ -1214,9 +1194,6 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 
 		t = (t + 1);
 		
-
-		
-		
 		
 		gl.glEnable(GL_SMOOTH);
 
@@ -1234,13 +1211,6 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 		// get a
 		// positive angle)
 		gl.glRotatef(360.0f - headingY, 0, 1.0f, 0);
-
-		// Player is at (posX, 0, posZ). Translate the scene to (-posX, 0,
-		// -posZ)
-		// instead.
-		// float[] po = {posX,-(posY + (-walkBias - 0.25f)),posZ};
-		//gl.glEnable(GL.GL_TEXTURE_2D);
-		//gl.glBindTexture(GL.GL_TEXTURE_2D, 11);
 		
 		gl.glTranslatef(-posX, -posY, -posZ);
 
@@ -1250,8 +1220,6 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 		int pp = gl.glGetUniformLocation(shader2, "ppos");
 		int sh = gl.glGetUniformLocation(shader2, "shadow");
 		
-		
-		//TODO: Work with camera
 			
 		if(!still){
 			
@@ -1290,17 +1258,12 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 			//Only move the camera if Steve isn't too close
 			if(zbuffer*zpos <= 0.001){
 				zdoes = true;
-				//posX+=delta.x;
-				//posZ+=delta.y;
 			}else if(zbuffer*zpos > 0.001){
 				zbuffer+=rdz;
 			}
 
 			if(xbuffer*xpos <= 0.001){
 				xdoes = true;
-				//posX+=delta.x;
-				//posZ+=delta.y;
-				
 			}else if(xbuffer*xpos > 0.001){
 				xbuffer+=rdx;
 			}
@@ -1373,9 +1336,6 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 		if(godmode){
 			gl.glUseProgram(shader3);
 			
-			//int txt = gl.glGetUniformLocation(shader1, "mytext");
-			//gl.glUniform1f(txt, 11);
-			
 			int ps = gl.glGetUniformLocation(shader3, "lightDir");
 			int gp = gl.glGetUniformLocation(shader3, "godPlatform");
 			int color = gl.glGetUniformLocation(shader3, "clr");
@@ -1401,20 +1361,15 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 			gl.glUniform1f(gp, 0);
 			gl.glUniform4f(color, 0.0f, 0.0f, 1.0f, 1.0f);
 			
-			//gl.glUniform4f(ps, 0,0,0, 1.0f);
-			
 			int vps = gl.glGetUniformLocation(shader3, "ppos");
 			gl.glUniform4f(vps, pos.x, pos.y, pos.z, 1.0f);
 		}
 		else{
 		gl.glUseProgram(shader1);
 
-		//int txt = gl.glGetUniformLocation(shader1, "mytext");
-		//gl.glUniform1f(txt, 11);
 		
 		int ps = gl.glGetUniformLocation(shader1, "lightDir");
 		gl.glUniform4f(ps, -pos.x + posX, -pos.y + posY + 50, -pos.z + posZ, 1.0f);
-		//gl.glUniform4f(ps, 0,0,0, 1.0f);
 		
 		int vps = gl.glGetUniformLocation(shader1, "ppos");
 		gl.glUniform4f(vps, pos.x, pos.y, pos.z, 1.0f);
@@ -1428,10 +1383,6 @@ public class SteveWorld implements GLEventListener, KeyListener, MouseListener {
 		
 		
 		cprisms = new ArrayList<Prism>();
-		
-		//gl.glUniform1f(sh, 0.2f);
-		
-		//gl.glUniform3f(l, -pos.x + posX, -pos.y + posY + 50, -pos.z + posZ);
 		
 		for(int i = 0; i<stage_prisms.size(); i++){
 			this.drawPlatform(gl, stage_prisms.get(i));
