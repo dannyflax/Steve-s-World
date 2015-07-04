@@ -1,4 +1,4 @@
-##Steve's World
+##Steve's World [![Build Status](https://travis-ci.org/dannyflax/Steve-s-World.svg?branch=master)](https://travis-ci.org/dannyflax/Steve-s-World)
 
 Start to a 3D Platformer written using [JOGL](http://jogamp.org/jogl/www/) and [JOGL Utils](https://github.com/dannyflax/JOGL-Utilities). You can control Steve and rotate the camera. He can jump on platforms. If he falls into space, he'll drop back onto the main platform. You can also add platforms and create your own platform map.
 
