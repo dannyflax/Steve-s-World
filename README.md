@@ -2,6 +2,13 @@
 
 Start to a 3D Platformer written using [JOGL](http://jogamp.org/jogl/www/) and [JOGL Utils](https://github.com/dannyflax/JOGL-Utilities). You can control Steve and rotate the camera. He can jump on platforms. If he falls into space, he'll drop back onto the main platform. You can also add platforms and create your own platform map.
 
+##Build Instructions
+Clone or download the project onto your local machine. If you don't already have it, install [gradle](https://gradle.org), then run the following two commands from the project's root directory:
+```
+gradle build
+gradle run
+```
+
 ##Controls
 
 ####Basic Motion Controls:
