@@ -111,3 +111,15 @@ hs_err_pid*
 .metadata/.plugins/org.eclipse.wst.jsdt.core/libraries/dom5.js
 .metadata/.plugins/org.eclipse.wst.jsdt.core/libraries/system.js
 .metadata/.plugins/org.eclipse.wst.jsdt.core/libraries/xhr.js
+/bin/
+.gradle/2.4/taskArtifacts/cache.properties
+.gradle/2.4/taskArtifacts/cache.properties.lock
+.gradle/2.4/taskArtifacts/fileHashes.bin
+.gradle/2.4/taskArtifacts/fileSnapshots.bin
+.gradle/2.4/taskArtifacts/outputFileStates.bin
+.gradle/2.4/taskArtifacts/taskArtifacts.bin
+build/distributions/Steve-World.tar
+build/distributions/Steve-World.zip
+build/scripts/Steve-World
+build/scripts/Steve-World.bat
+build/tmp/jar/MANIFEST.MF
