@@ -1,8 +1,10 @@
-##Steve's World [![Build Status](https://travis-ci.org/dannyflax/Steves-World.svg?branch=master)](https://travis-ci.org/dannyflax/Steve-s-World)
+## Steve's World [![Build Status](https://travis-ci.org/dannyflax/Steves-World.svg?branch=master)](https://travis-ci.org/dannyflax/Steve-s-World)
 
-Start to a 3D Platformer written using [JOGL](http://jogamp.org/jogl/www/) and [JOGL Utils](https://github.com/dannyflax/JOGL-Utilities). You can control Steve and rotate the camera. He can jump on platforms. If he falls into space, he'll drop back onto the main platform. You can also add platforms and create your own platform map.
+Start to a 3D Platform Demo written using [JOGL](http://jogamp.org/jogl/www/) and [JOGL Utils](https://github.com/dannyflax/JOGL-Utilities). You can control Steve and rotate the camera.
 
-##Build Instructions
+It's written using a custom library on top of JOGL to load 3D model files and animations ([library source in seprate repo](https://github.com/dannyflax/JOGL-Utilities)).
+
+## Build Instructions
 Clone or download the project onto your local machine. If you don't already have [gradle](https://gradle.org), you can run the project the wrapper and the following commands:
 ```
 ./gradlew build
@@ -14,9 +16,9 @@ gradle build
 gradle run
 ```
 
-##Controls
+## Controls
 
-####Basic Motion Controls:
+#### Basic Motion Controls:
  * 		Move Left - A
  * 		Move Right - D
  * 		Move Forward - W
@@ -26,7 +28,7 @@ gradle run
  * 		Rotate Camera - R,T
  * 		Toggle god mode - G
 
-####God Mode Controls (profusely complicated):
+#### God Mode Controls:
  * 		Switch view from axis - X,Y,Z (hold ctrl to flip)
  * 		Move Platform - Shift + Mouse Drag
  * 		Place Platform - P + Single Click
