@@ -1,6 +1,8 @@
 ## Steve's World [![Build Status](https://travis-ci.org/dannyflax/Steves-World.svg?branch=master)](https://travis-ci.org/dannyflax/Steve-s-World)
 
-Start to a 3D Platform Demo written using [JOGL](http://jogamp.org/jogl/www/) and [JOGL Utils](https://github.com/dannyflax/JOGL-Utilities). You can control Steve, the 3D character, and rotate the camera.
+Start to a 3D Platform Demo written using [JOGL](http://jogamp.org/jogl/www/) and [JOGL Utils](https://github.com/dannyflax/JOGL-Utilities).
+
+You can control Steve, the 3D character, and rotate the camera. 
 
 You can also place custom-sized objects in the 3D world and test how the character intertacts with them.
 
