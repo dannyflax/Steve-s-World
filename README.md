@@ -2,7 +2,9 @@
 
 Start to a 3D Platform Demo written using [JOGL](http://jogamp.org/jogl/www/) and [JOGL Utils](https://github.com/dannyflax/JOGL-Utilities). You can control Steve, the 3D character, and rotate the camera.
 
-It's written using a custom library on top of JOGL to load 3D model files and animations ([library source in seprate repo](https://github.com/dannyflax/JOGL-Utilities)).
+You can also place custom-sized objects in the 3D world and test how the character intertacts with them.
+
+It's written using a custom library on top of JOGL to load 3D model files and animations ([library source in seprate repo](https://github.com/dannyflax/JOGL-Utilities)) and it includes all the math for calculating motion, 2D => 3D projections, 3D collisions, and more.
 
 ## Build Instructions
 Clone or download the project onto your local machine. If you don't already have [gradle](https://gradle.org), you can run the project the wrapper and the following commands:
